@@ -1,10 +1,15 @@
 // npm init
-// npm i express dotenv morgan axios
+// npm i express dotenv morgan axios socket.io
+// npm install sentiment
+// npm install natural
 
 const dotenv = require('dotenv');
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const http = require('http');
+
+const socketio = require('socket.io');
 
 // specify config path
 dotenv.config({ path: './config/config.env' });
@@ -35,5 +40,14 @@ if (process.env.NODE_ENV === 'production') {
   );
 }
 
+/* TODO: Socket.IO CHANGES */
+// http has it under the hood of express, but we need to access it directly due to the use of socket.io
+const server = http.createServer(app);
+const io = socketio(server);
+
 const port = process.env.PORT || 5000;
-app.listen(port, console.log(`Media Analysis Server listening on ${port}`));
+// app.listen(port, console.log(`Media Analysis Server listening on ${port}`));
+
+server.listen(port, () =>
+  console.log(`Twitter Analysis Server listening on ${port}`)
+);

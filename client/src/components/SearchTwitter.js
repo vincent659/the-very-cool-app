@@ -1,50 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+// import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
+// const ENDPOINT = 'http://127.0.0.1:5000';
 
 const SearchTwitter = (props) => {
-  const [tweets, setTweets] = useState([]);
+  const [keyTerm, setKeyTerm] = useState([]);
+  // const [response, setResponse] = useState('');
   const [error, setError] = useState(null);
 
-  let temp = props.search;
+  // useEffect(() => {
+  //   const socket = socketIOClient(ENDPOINT);
+  //   socket.on('FromAPI', (data) => {
+  //     setResponse(data);
+  //   });
+  // }, []);
 
-  const handleTwitter = (e) => {
+  // console.log(response);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const search = { msg: e.target.value };
+    if (keyTerm == '') {
+      setError(e);
+    } else {
+      const search = { msg: keyTerm };
 
-    axios
-      .post(`/api/v1/mashup/tweets`, search)
-      .then((data) => {
-        console.log(data.data.statuses.length);
-        setError(null);
-        // setTweets(data.data.statuses);
-        data.data.statuses.length > 0
-          ? setTweets(data.data.statuses)
-          : setError(e);
-      })
-      .catch((e) => {
-        setError(e);
-      });
+      axios
+        .post(`/api/v1/mashup/tweets`, search)
+        .then((data) => {
+          console.log(data);
+          // console.log(data.data.statuses.length);
+          setError(null);
+          // setKeyTerm(data.data.statuses);
+          // data.data.statuses.length > 0
+          //   ? setKeyTerm(data.data.statuses)
+          //   : setError(e);
+        })
+        .catch((e) => {
+          setError(e);
+        });
+    }
   };
 
   return (
     <div>
-      <h6 className="mb-4 text-left">
-        Step 2: Select a relevant keyword or phrase from the drop-down menu to
-        perform public opinion search on twitter
-      </h6>
-      <select onChange={handleTwitter} className="mb-4">
-        <option key="empty">Select key term...</option>
-        {temp.map((data) => {
-          if (data !== undefined) {
-            return (
-              <option value={data.label} key={data.id}>
-                {data.label}
-              </option>
-            );
-          }
-        })}
-      </select>
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <InputGroup
+          value={keyTerm}
+          onChange={(e) => setKeyTerm(e.target.value)}
+        >
+          <InputGroup.Prepend>
+            <Button
+              as="input"
+              type="submit"
+              value="Submit"
+              variant="outline-secondary"
+            ></Button>
+          </InputGroup.Prepend>
+          <FormControl aria-describedby="basic-addon1" />
+        </InputGroup>
+      </form>
       {error ? (
         <div className="text-danger">
           No related tweets found. Please try to use another keyword or phrase
@@ -52,15 +70,14 @@ const SearchTwitter = (props) => {
       ) : (
         ''
       )}
-      {tweets.map((data, index) => (
+      {/* {keyTerm.map((data, index) => (
         <Card className="my-2" key={index}>
           <Card.Header as="h5">Tweet {index + 1} </Card.Header>
           <Card.Body>
-            {/* <Card.Title>{index} Tweets</Card.Title> */}
             <Card.Text>{data.text}</Card.Text>
           </Card.Body>
         </Card>
-      ))}
+      ))} */}
     </div>
   );
 };
