@@ -9,6 +9,9 @@ import FormControl from 'react-bootstrap/FormControl';
 
 const SearchTwitter = (props) => {
   const [keyTerm, setKeyTerm] = useState([]);
+  const [tweetPosts, setTweetPosts] = useState([]);
+  const [sentimentAvgScore, setSentimentAvgScore] = useState('');
+  const [sentimentScores, setSentimentScores] = useState([]);
   // const [response, setResponse] = useState('');
   const [error, setError] = useState(null);
 
@@ -35,9 +38,13 @@ const SearchTwitter = (props) => {
           // console.log(data.data.statuses.length);
           setError(null);
           // setKeyTerm(data.data.statuses);
-          // data.data.statuses.length > 0
-          //   ? setKeyTerm(data.data.statuses)
-          //   : setError(e);
+          if (data.data.statuses.length > 0) {
+            setTweetPosts(data.data.statuses);
+            setSentimentAvgScore(data.total);
+            setSentimentScores(data.scores);
+          } else {
+            setError(e);
+          }
         })
         .catch((e) => {
           setError(e);
@@ -70,14 +77,14 @@ const SearchTwitter = (props) => {
       ) : (
         ''
       )}
-      {/* {keyTerm.map((data, index) => (
+      {tweetPosts.map((data, index) => (
         <Card className="my-2" key={index}>
           <Card.Header as="h5">Tweet {index + 1} </Card.Header>
           <Card.Body>
             <Card.Text>{data.text}</Card.Text>
           </Card.Body>
         </Card>
-      ))} */}
+      ))}
     </div>
   );
 };
