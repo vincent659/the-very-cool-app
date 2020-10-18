@@ -3,6 +3,8 @@ const express = require('express');
 const AWS = require('aws-sdk');
 
 const router = express.Router();
+const queryString = require('query-string');
+// const url = require('url');
 const axios = require('axios');
 const Twit = require('twit');
 const natural = require('natural');
@@ -37,6 +39,13 @@ const bucketName = 'vincentchenn7588844-wikipedia-store';
 // Tweets Processing
 router.post('/tweets', async (req, res) => {
   try {
+    // console.log(req);
+    // var query = require('url').parse(req.url, true).query;
+    // var id = req.query;
+    // const parsed = queryString.parse(location.search);
+    // console.log(parsed);
+    // console.log(query);
+    // console.log(req.body.msg);
     const keyWord = req.body.msg.trim();
 
     //<------ Getting Date Time START ------->
@@ -181,7 +190,7 @@ router.post('/tweets', async (req, res) => {
             } else {
               T.get(
                 'search/tweets',
-                { q: `${keyWord} since:${mostRecentTime}`, count: 10 },
+                { q: `${keyWord} since:${mostRecentTime}`, count: 100 },
                 function (err, data, response) {
                   const responseJSON = data;
 

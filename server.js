@@ -5,6 +5,7 @@
 // npm install keyword-extractor
 // npm install redis response-time
 // npm install aws-sdk
+// npm install query-string
 
 const dotenv = require('dotenv');
 const express = require('express');
