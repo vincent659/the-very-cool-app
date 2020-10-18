@@ -71,6 +71,7 @@ const SearchTwitter = (props) => {
           setError(null);
           // setKeyTerm(data.data.statuses);
           if (data.data.statuses.length > 0) {
+            console.log(data);
             setTweetPosts(data.data.statuses);
             setSentimentAvgScore(data.data.total);
             setSentimentScores(data.data.scores);
@@ -87,7 +88,7 @@ const SearchTwitter = (props) => {
   };
   // console.log('im out');
 
-  // console.log(sentimentScores);
+  // console.log(sentimentAvgScore);
 
   return (
     <div>
@@ -114,8 +115,8 @@ const SearchTwitter = (props) => {
       ) : (
         ''
       )}
-      <h1>{`Average sentiment score for '${keyTerm}': ${
-        Math.round(sentimentAvgScore * 100) / 100
+      <h1>{`Average sentiment score for the topic of '${keyTerm}': ${
+        sentimentAvgScore == 0 ? '' : sentimentAvgScore.toFixed(5)
       }`}</h1>
       {/* {sentimentScores.map((data, index) => (
         <h1 key={index}>{data}</h1>
@@ -124,7 +125,7 @@ const SearchTwitter = (props) => {
 
       <h1>
         {/* The total scores for{' '} */}
-        {`Total tweets : ${sentimentScores.length}`}
+        {`Total tweets displayed: ${sentimentScores.length}`}
       </h1>
       {tweetPosts.map((data, index) => (
         <Card className="my-2" key={index}>
