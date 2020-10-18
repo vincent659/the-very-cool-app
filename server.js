@@ -2,9 +2,14 @@
 // npm i express dotenv morgan axios socket.io
 // npm install sentiment
 // npm install natural
+// npm install keyword-extractor
+// npm install redis response-time
+// npm install aws-sdk
+// npm install query-string
 
 const dotenv = require('dotenv');
 const express = require('express');
+const responseTime = require('response-time');
 const path = require('path');
 const morgan = require('morgan');
 const http = require('http');
@@ -24,6 +29,9 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// use response-time as a middleware
+app.use(responseTime());
 
 // mount the router
 app.use('/api/v1/mashup', require('./routes/api'));
