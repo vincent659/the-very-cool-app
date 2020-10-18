@@ -34,16 +34,14 @@ export const Jumbotron = () => {
         <Container>
           <h1 className="text-left">Media Analysis</h1>
           <p className="text-justify">
-            The media can manipulate, influence, persuade and pressurise
-            society, along with even controlling the world at times in both
-            positive and negative ways; mentally, physically and emotionally.
+            Sentiment analysis is extremely useful in social media monitoring as
+            it allows us to gain an overview of the wider public opinion behind
+            certain topics
           </p>
           <p className="text-justify">
-            Controversial stories are reported and printed with no reliance of
-            it being fact or not. The public is “meant” to believe everything
-            they’re told and not question it. With it being so easy to say
-            assert an opinion so easily after a few taps, it can lead to
-            investigations and front page headlines.
+            The applications of sentiment analysis are broad and powerful. The
+            ability to extract insights from social data is a practice that is
+            being widely adopted by organisations across the world.
           </p>
         </Container>
       </Jumbo>
