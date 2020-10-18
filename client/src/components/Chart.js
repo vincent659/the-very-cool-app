@@ -6,7 +6,6 @@ export const Chart = (props) => {
   const [chartLabel, setChartLabel] = useState([]);
   const [chartData, setChartData] = useState([]);
 
-  //   console.log('me' + props.data);
   let tweetRange = [];
 
   useEffect(() => {
@@ -23,8 +22,7 @@ export const Chart = (props) => {
     legendPosition: 'right',
     title: props.name,
   };
-
-  console.log('this is chart' + chartData);
+  // console.log('this is chart' + chartData);
 
   // ChartJS
   const data = {

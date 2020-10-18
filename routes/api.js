@@ -81,15 +81,65 @@ router.post('/tweets', async (req, res) => {
       if (result) {
         const resultJSON = JSON.parse(result);
 
-        //<------ Performing Sentiment Analysis START ------->
-        let scores = [];
-        UnprocessedTwitterPosts = resultJSON.statuses;
+        //<------ Performing Tweet Text Clean Up START ----->
+        let NoiseTwitterPosts = [];
+        let temp = resultJSON.statuses;
 
-        // Loop through obtained tweet results
-        for (let i = 0; i < UnprocessedTwitterPosts.length; i++) {
+        for (let i = 0; i < temp.length; i++) {
+          let param = '';
+          if (
+            temp[i].text.slice(0, 3) == 'RT ' &&
+            temp[i].text.includes('@') &&
+            temp[i].text.includes('http')
+          ) {
+            param = temp[i].text.slice(3);
+            NoiseTwitterPosts.push(param.replace(/(@\S+|(https)\S+)/gi, ''));
+          } else if (
+            temp[i].text.slice(0, 3) == 'RT ' &&
+            temp[i].text.includes('http')
+          ) {
+            param = temp[i].text.slice(3);
+            NoiseTwitterPosts.push(param.replace(/((http)\S+)/gi, ''));
+          } else if (
+            temp[i].text.slice(0, 3) == 'RT ' &&
+            temp[i].text.includes('@')
+          ) {
+            param = temp[i].text.slice(3);
+            NoiseTwitterPosts.push(param.replace(/(@\S+)/gi, ''));
+          } else if (
+            temp[i].text.includes('@') &&
+            temp[i].text.includes('http')
+          ) {
+            NoiseTwitterPosts.push(
+              temp[i].text.replace(/(@\S+|(https)\S+)/gi, '')
+            );
+          } else if (temp[i].text.slice(0, 3) == 'RT ') {
+            NoiseTwitterPosts.push(temp[i].text.slice(3));
+          } else if (temp[i].text.includes('@')) {
+            NoiseTwitterPosts.push(temp[i].text.replace(/(@\S+)/gi, ''));
+          } else if (temp[i].text.includes('http')) {
+            NoiseTwitterPosts.push(temp[i].text.replace(/((http)\S+)/gi, ''));
+          } else {
+            NoiseTwitterPosts.push(temp[i].text);
+          }
+        }
+        // console.log(temp.text);
+        // console.log(NoiseTwitterPosts);
+        // <------ Performing Tweet Text Clean Up END ------->
+
+        //<------ Performing Sentiment Analysis START ------>
+        let scores = [];
+        // UnprocessedTwitterPosts = NoiseTwitterPosts;
+
+        // Loop through tweets for sentiment analysis
+        for (let i = 0; i < NoiseTwitterPosts.length; i++) {
+          console.log(NoiseTwitterPosts[i]);
+          console.log(i + '------------------------------------');
           // keyword extractor
+          // console.log(NoiseTwitterPosts[i]);
+          // console.log('--------------');
           let extraction_result = keyword_extractor.extract(
-            UnprocessedTwitterPosts[i].text,
+            NoiseTwitterPosts[i],
             {
               language: 'english',
               remove_digits: true,
@@ -100,15 +150,31 @@ router.post('/tweets', async (req, res) => {
 
           // Averaging two sentiment scores from two sources for better accuracy
           let sentimentScore1 = analyzer.getSentiment(extraction_result);
-          let SentimentScore2 = sentiment.analyze(
-            UnprocessedTwitterPosts[i].text
-          );
+          let SentimentScore2 = sentiment.analyze(NoiseTwitterPosts[i]);
 
           SentimentScoreAvg =
             (sentimentScore1 + SentimentScore2.comparative) / 2;
 
+          // Check for NaN, if so assign as 0
+          if (Number.isNaN(SentimentScoreAvg)) {
+            SentimentScoreAvg = 0;
+            // console.log(
+            //   i + '!!!!!!!!!!!!!!!!im error!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+            // );
+            // console.log('this is the post' + NoiseTwitterPosts[i]);
+            // console.log('this is the score 1' + sentimentScore1);
+            // console.log(
+            //   'this is the score 1 extraction result' + extraction_result
+            // );
+            // console.log('this is the score 2' + SentimentScore2);
+            // console.log('this is the avg score' + SentimentScoreAvg);
+          }
+          // console.log(SentimentScoreAvg);
+
           scores.push(SentimentScoreAvg);
         }
+
+        // console.log(scores);
 
         // Get the total avaerage sentiment score
         let total = 0;
@@ -141,16 +207,64 @@ router.post('/tweets', async (req, res) => {
                 3600,
                 JSON.stringify({ source: 'Redis Cache', ...resultJSON })
               );
+              //<------ Performing Tweet Text Clean Up START ----->
+              let NoiseTwitterPosts = [];
+              let temp = resultJSON.statuses;
+
+              for (let i = 0; i < temp.length; i++) {
+                if (
+                  temp[i].text.slice(0, 3) == 'RT ' &&
+                  temp[i].text.includes('@') &&
+                  temp[i].text.includes('http')
+                ) {
+                  let param = temp[i].text.slice(3);
+                  NoiseTwitterPosts.push(
+                    param.replace(/(@\S+|(https)\S+)/gi, '')
+                  );
+                } else if (
+                  temp[i].text.slice(0, 3) == 'RT ' &&
+                  temp[i].text.includes('http')
+                ) {
+                  let param = temp[i].text.slice(3);
+                  NoiseTwitterPosts.push(param.replace(/((http)\S+)/gi, ''));
+                } else if (
+                  temp[i].text.slice(0, 3) == 'RT ' &&
+                  temp[i].text.includes('@')
+                ) {
+                  let param = temp[i].text.slice(3);
+                  NoiseTwitterPosts.push(param.replace(/(@\S+)/gi, ''));
+                } else if (
+                  temp[i].text.includes('@') &&
+                  temp[i].text.includes('http')
+                ) {
+                  NoiseTwitterPosts.push(
+                    temp[i].text.replace(/(@\S+|(https)\S+)/gi, '')
+                  );
+                } else if (temp[i].text.slice(0, 3) == 'RT ') {
+                  NoiseTwitterPosts.push(temp[i].text.slice(3));
+                } else if (temp[i].text.includes('@')) {
+                  NoiseTwitterPosts.push(temp[i].text.replace(/(@\S+)/gi, ''));
+                } else if (temp[i].text.includes('http')) {
+                  NoiseTwitterPosts.push(
+                    temp[i].text.replace(/((http)\S+)/gi, '')
+                  );
+                } else {
+                  NoiseTwitterPosts.push(temp[i].text);
+                }
+              }
+              // console.log(temp.text);
+              // console.log(NoiseTwitterPosts);
+              // <------ Performing Tweet Text Clean Up END ------->
 
               //<------ Performing Sentiment Analysis START ------->
               let scores = [];
-              UnprocessedTwitterPosts = resultJSON.statuses;
+              // UnprocessedTwitterPosts = resultJSON.statuses;
 
-              // Loop through obtained tweet results
-              for (let i = 0; i < UnprocessedTwitterPosts.length; i++) {
+              // Loop through tweets for sentiment analysis
+              for (let i = 0; i < NoiseTwitterPosts.length; i++) {
                 // keyword extractor
                 let extraction_result = keyword_extractor.extract(
-                  UnprocessedTwitterPosts[i].text,
+                  NoiseTwitterPosts[i],
                   {
                     language: 'english',
                     remove_digits: true,
@@ -161,13 +275,24 @@ router.post('/tweets', async (req, res) => {
 
                 // Averaging two sentiment scores from two sources for better accuracy
                 let sentimentScore1 = analyzer.getSentiment(extraction_result);
-                let SentimentScore2 = sentiment.analyze(
-                  UnprocessedTwitterPosts[i].text
-                );
+                let SentimentScore2 = sentiment.analyze(NoiseTwitterPosts[i]);
 
                 SentimentScoreAvg =
                   (sentimentScore1 + SentimentScore2.comparative) / 2;
-
+                // Check for NaN, if so assign as 0
+                if (Number.isNaN(SentimentScoreAvg)) {
+                  SentimentScoreAvg = 0;
+                  // console.log(
+                  //   i + '!!!!!!!!!!!!!!!!im error!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                  // );
+                  // console.log('this is the post' + NoiseTwitterPosts[i]);
+                  // console.log('this is the score 1' + sentimentScore1);
+                  // console.log(
+                  //   'this is the score 1 extraction result' + extraction_result
+                  // );
+                  // console.log('this is the score 2' + SentimentScore2);
+                  // console.log('this is the avg score' + SentimentScoreAvg);
+                }
                 scores.push(SentimentScoreAvg);
               }
 
@@ -225,15 +350,69 @@ router.post('/tweets', async (req, res) => {
                     })
                   );
 
+                  //<------ Performing Tweet Text Clean Up START ----->
+                  let NoiseTwitterPosts = [];
+                  let temp = responseJSON.statuses;
+
+                  for (let i = 0; i < temp.length; i++) {
+                    if (
+                      temp[i].text.slice(0, 3) == 'RT ' &&
+                      temp[i].text.includes('@') &&
+                      temp[i].text.includes('http')
+                    ) {
+                      let param = temp[i].text.slice(3);
+                      NoiseTwitterPosts.push(
+                        param.replace(/(@\S+|(https)\S+)/gi, '')
+                      );
+                    } else if (
+                      temp[i].text.slice(0, 3) == 'RT ' &&
+                      temp[i].text.includes('http')
+                    ) {
+                      let param = temp[i].text.slice(3);
+                      NoiseTwitterPosts.push(
+                        param.replace(/((http)\S+)/gi, '')
+                      );
+                    } else if (
+                      temp[i].text.slice(0, 3) == 'RT ' &&
+                      temp[i].text.includes('@')
+                    ) {
+                      let param = temp[i].text.slice(3);
+                      NoiseTwitterPosts.push(param.replace(/(@\S+)/gi, ''));
+                    } else if (
+                      temp[i].text.includes('@') &&
+                      temp[i].text.includes('http')
+                    ) {
+                      NoiseTwitterPosts.push(
+                        temp[i].text.replace(/(@\S+|(https)\S+)/gi, '')
+                      );
+                    } else if (temp[i].text.slice(0, 3) == 'RT ') {
+                      NoiseTwitterPosts.push(temp[i].text.slice(3));
+                    } else if (temp[i].text.includes('@')) {
+                      NoiseTwitterPosts.push(
+                        temp[i].text.replace(/(@\S+)/gi, '')
+                      );
+                    } else if (temp[i].text.includes('http')) {
+                      NoiseTwitterPosts.push(
+                        temp[i].text.replace(/((http)\S+)/gi, '')
+                      );
+                    } else {
+                      NoiseTwitterPosts.push(temp[i].text);
+                    }
+                  }
+                  // console.log(temp.text);
+                  // console.log(NoiseTwitterPosts);
+                  // <------ Performing Tweet Text Clean Up END ------->
+
                   //<------ Performing Sentiment Analysis START ------->
                   let scores = [];
-                  UnprocessedTwitterPosts = responseJSON.statuses;
+                  // UnprocessedTwitterPosts = responseJSON.statuses;
 
-                  // Loop through obtained tweet results
-                  for (let i = 0; i < UnprocessedTwitterPosts.length; i++) {
+                  // Loop through tweets for sentiment analysis
+                  for (let i = 0; i < NoiseTwitterPosts.length; i++) {
+                    console.log(NoiseTwitterPosts[i]);
                     // keyword extractor
                     let extraction_result = keyword_extractor.extract(
-                      UnprocessedTwitterPosts[i].text,
+                      NoiseTwitterPosts[i],
                       {
                         language: 'english',
                         remove_digits: true,
@@ -247,12 +426,25 @@ router.post('/tweets', async (req, res) => {
                       extraction_result
                     );
                     let SentimentScore2 = sentiment.analyze(
-                      UnprocessedTwitterPosts[i].text
+                      NoiseTwitterPosts[i]
                     );
 
                     SentimentScoreAvg =
                       (sentimentScore1 + SentimentScore2.comparative) / 2;
-
+                    // Check for NaN, if so assign as 0
+                    if (Number.isNaN(SentimentScoreAvg)) {
+                      SentimentScoreAvg = 0;
+                      // console.log(
+                      //   i + '!!!!!!!!!!!!!!!!im error!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                      // );
+                      // console.log('this is the post' + NoiseTwitterPosts[i]);
+                      // console.log('this is the score 1' + sentimentScore1);
+                      // console.log(
+                      //   'this is the score 1 extraction result' + extraction_result
+                      // );
+                      // console.log('this is the score 2' + SentimentScore2);
+                      // console.log('this is the avg score' + SentimentScoreAvg);
+                    }
                     scores.push(SentimentScoreAvg);
                   }
 

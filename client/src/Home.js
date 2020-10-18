@@ -20,10 +20,9 @@ const Home = (match) => {
   return (
     <div>
       <h6 className="mb-4 text-left">
-        Step 1: Please enter a keyword or phrase to perform search for relevant
-        tweets.
+        Please enter a keyword or phrase to perform search for relevant tweets.
       </h6>
-      <hr />
+      {/* <hr /> */}
       <SearchTwitter search={handleSubmit} query={match.match.params.query} />
       <hr />
     </div>
