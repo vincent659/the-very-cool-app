@@ -53,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
 const server = http.createServer(app);
 const io = socketio(server);
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 // app.listen(port, console.log(`Media Analysis Server listening on ${port}`));
 
 server.listen(port, () =>
