@@ -22,7 +22,6 @@ export const Chart = (props) => {
     legendPosition: 'right',
     title: props.name,
   };
-  // console.log('this is chart' + chartData);
 
   // ChartJS
   const data = {

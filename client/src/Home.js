@@ -22,7 +22,6 @@ const Home = (match) => {
       <h6 className="mb-4 text-left">
         Please enter a keyword or phrase to perform search for relevant tweets.
       </h6>
-      {/* <hr /> */}
       <SearchTwitter search={handleSubmit} query={match.match.params.query} />
       <hr />
     </div>

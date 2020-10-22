@@ -1,1 +1,1 @@
-this is the 2nd test.
+Please perform `npm install` within both app dir and client dir

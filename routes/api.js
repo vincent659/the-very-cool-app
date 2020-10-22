@@ -3,12 +3,13 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const router = express.Router();
 const Twit = require('twit');
-const natural = require('natural');
 const Analyzer = require('natural').SentimentAnalyzer;
 const stemmer = require('natural').PorterStemmer;
 const Sentiment = require('sentiment');
 const keyword_extractor = require('keyword-extractor');
 const redis = require('redis');
+
+// Future: show the top 5 most popular words for this topic (excluding the keywords)
 
 // Twitter API config
 let T = new Twit({
@@ -29,7 +30,7 @@ redisClient.on('error', (err) => {
 
 // S3 unique bucket name
 const bucketName = 'vincentchenn7588844-wikipedia-store';
-
+// Storing object into s3
 function s3Store(param, keyWord, mostRecentTime) {
   const s3Key = `tweets-${keyWord + mostRecentTime}`;
 
@@ -49,10 +50,9 @@ function s3Store(param, keyWord, mostRecentTime) {
   uploadPromise.then(function (data) {
     console.log('Successfully uploaded data to ' + bucketName + '/' + s3Key);
   });
-  console.log('im in s3 store');
 }
 
-// Tweet Post Cleaning Function
+// Tweet Post Cleaning
 function tweetClean(result) {
   let NoiseTwitterPosts = [];
   let temp = result.statuses;
@@ -99,6 +99,7 @@ function sentimentAnalysis(NoiseTwitterPosts) {
   let sentiment = new Sentiment();
   let analyzer = new Analyzer('English', stemmer, 'senticon');
   let scores = [];
+  let wordExtract = [];
 
   // Loop through tweets for sentiment analysis
   for (let i = 0; i < NoiseTwitterPosts.length; i++) {
@@ -119,8 +120,8 @@ function sentimentAnalysis(NoiseTwitterPosts) {
     if (Number.isNaN(SentimentScoreAvg)) {
       SentimentScoreAvg = 0;
     }
-
     scores.push(SentimentScoreAvg);
+    // wordExtract.push(extraction_result);
   }
 
   // Get the total average sentiment score
@@ -131,7 +132,7 @@ function sentimentAnalysis(NoiseTwitterPosts) {
 
   total = total / scores.length;
 
-  return { scores, total };
+  return { scores, total /* wordExtract */ };
 }
 
 // Tweets Processing
@@ -172,12 +173,16 @@ router.post('/tweets', async (req, res) => {
         let NoiseTwitterPosts = tweetClean(resultJSON);
 
         // Performing Sentiment Analysis
-        let { scores, total } = sentimentAnalysis(NoiseTwitterPosts);
-        console.log('im in redis');
+        let { scores, total /* wordExtract */ } = sentimentAnalysis(
+          NoiseTwitterPosts
+        );
+        console.log('Retrieved Data From Redis');
+        // console.log(wordExtract);
 
         return res.status(200).json({
           source: 'Redis Cache',
           ...resultJSON,
+          // wordExtract,
           scores,
           total,
         });
@@ -201,7 +206,7 @@ router.post('/tweets', async (req, res) => {
 
               // Performing Sentiment Analysis
               let { scores, total } = sentimentAnalysis(NoiseTwitterPosts);
-              console.log('im in s3');
+              console.log('Retrieved Data From S3');
 
               return res.status(200).json({
                 source: 'S3 Bucket',
@@ -210,15 +215,11 @@ router.post('/tweets', async (req, res) => {
                 total,
               });
             } else {
-              /* THIS IS THE START OF THE TWIT GET */
-
               T.get(
                 'search/tweets',
                 { q: `${keyWord} since:${mostRecentTime}`, count: 100 },
                 function (err, data, response) {
                   const responseJSON = data;
-
-                  // console.log(responseJSON);
 
                   // storing recieved tweets in s3
                   s3Store(responseJSON, keyWord, mostRecentTime);
@@ -245,9 +246,7 @@ router.post('/tweets', async (req, res) => {
                   });
                 }
               );
-              console.log('im in api');
-
-              /* THIS IS THE END OF THE TWIT GET */
+              console.log('Retrieved Data From Twitter API');
             }
           }
         );
