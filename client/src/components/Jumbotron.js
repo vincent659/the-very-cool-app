@@ -1,11 +1,11 @@
 import React from 'react';
 import { Jumbotron as Jumbo, Container } from 'react-bootstrap';
 import styled from 'styled-components';
-import loveData from '../assets/love-data.jpg';
+import equal from '../assets/equal.jpg';
 
 const Styles = styled.div`
   .jumbo {
-    background: url(${loveData}) no-repeat fixed bottom;
+    background: url(${equal}) no-repeat fixed bottom;
     background-size: cover;
     color: #cccccc;
     height: 300px;
@@ -32,7 +32,7 @@ export const Jumbotron = () => {
       <Jumbo fluid className="jumbo">
         <div className="overlay"></div>
         <Container>
-          <h1 className="text-left">Tweet Analysis</h1>
+          <h1 className="text-left">Media Analysis</h1>
           <p className="text-justify">
             Sentiment analysis is extremely useful in social media monitoring as
             it allows us to gain an overview of the wider public opinion behind

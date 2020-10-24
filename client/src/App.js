@@ -11,14 +11,23 @@ import './App.css';
 
 // npm install react-bootstrap bootstrap
 // npm i axios
+// npm i socket.io-client
 // npm i styled-components
 // npm install react-router-dom
 // npm install --save react-chartjs-2 chart.js
-// npm i --save @fortawesome/fontawesome-svg-core
-// npm install --save @fortawesome/free-solid-svg-icons
-// npm install --save @fortawesome/react-fontawesome
 
 function App() {
+  // const [text, setText] = useState([]);
+  // const [extraKey, setExtraKey] = useState([]);
+
+  // const handleSubmit = (data) => {
+  //   setText(data.data.msg.articles);
+  // };
+
+  // const handleExtraKeyword = (keyword) => {
+  //   setExtraKey(keyword);
+  // };
+
   return (
     <div className="App">
       <React.Fragment>
