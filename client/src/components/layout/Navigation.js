@@ -32,8 +32,8 @@ export const Navigation = () => {
       <Navbar>
         <Navbar.Brand>
           <img src={rights} className="photo" alt="" />
-          <span className="h1" variant="secondary">
-            TheMovement
+          <span className="ml-2 h1" variant="secondary">
+            Twitter Guru
           </span>
         </Navbar.Brand>
       </Navbar>

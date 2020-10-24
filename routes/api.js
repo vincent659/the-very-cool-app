@@ -176,8 +176,7 @@ router.post('/tweets', async (req, res) => {
         let { scores, total /* wordExtract */ } = sentimentAnalysis(
           NoiseTwitterPosts
         );
-        console.log('Retrieved Data From Redis');
-        // console.log(wordExtract);
+        console.log(`${redisKey} was retrieved from Redis`);
 
         return res.status(200).json({
           source: 'Redis Cache',
@@ -206,7 +205,8 @@ router.post('/tweets', async (req, res) => {
 
               // Performing Sentiment Analysis
               let { scores, total } = sentimentAnalysis(NoiseTwitterPosts);
-              console.log('Retrieved Data From S3');
+
+              console.log(`${s3Key} was retrieved from S3`);
 
               return res.status(200).json({
                 source: 'S3 Bucket',
@@ -246,7 +246,7 @@ router.post('/tweets', async (req, res) => {
                   });
                 }
               );
-              console.log('Retrieved Data From Twitter API');
+              console.log(`${keyWord} was retrieved from Twitter API`);
             }
           }
         );
